@@ -56,7 +56,7 @@ def mapParams (game_name):
     pkg.region = "EU"
     print("pkg region not detected in: " + pkg.name)
   if pkg.type == "":
-    pkg.type = "Game"
+    pkg.type = "Others"
     print("pkg type not detected in: " + pkg.name)
   if pkg.version == "":
     if pkg.type != "Addon":
