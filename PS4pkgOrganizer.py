@@ -91,9 +91,10 @@ def checkListContent(elementlist):
   for element in elementlist:
     if pkg_game.psid == element.psid:
       if dry_run == 0:
-        print(os.path.join(element.filepath, element.filename) + " -> " + new_game_dir)
-        shutil.move(os.path.join(element.filepath, element.filename), new_game_dir)
-      # Remove the element from the list to prevent it to be processed again
+        if new_game_dir != element.filepath:
+          print(os.path.join(element.filepath, element.filename) + " -> " + new_game_dir)
+          shutil.move(os.path.join(element.filepath, element.filename), new_game_dir)
+          # Remove the element from the list to prevent it to be processed again
       elementlist.remove(element)
 
 for pkg_game in pkg_Game_list:
