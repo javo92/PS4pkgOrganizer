@@ -33,8 +33,8 @@ def mapParams (game_name):
   pkg.clear(pkg)
 
   param_list = []
-  param_start = game_name.find("{") + 1;
-  param_end   = game_name.find("}");
+  param_start = game_name.find("{") + 1
+  param_end   = game_name.find("}")
   while param_start >= 0 and param_end >= 0:
     param = game_name[param_start : param_end]
     game_name = game_name[param_end+2 : len(game_name)]
@@ -47,20 +47,21 @@ def mapParams (game_name):
     else: # param.find("v.") != -1 or param == "":
       pkg.version = param
       name_start = param_end + 1
-    param_start = game_name.find("{") + 1;
-    param_end   = game_name.find("}");
+    param_start = game_name.find("{") + 1
+    param_end   = game_name.find("}")
   pkg.name = game_name
   # Set default params to prevent failures
   
   if pkg.region == "":
     pkg.region = "EU"
-    print("pkg region not detected in" + pkg.name)
+    print("pkg region not detected in: " + pkg.name)
   if pkg.type == "":
     pkg.type = "Game"
-    print("pkg type not detected in" + pkg.name)
+    print("pkg type not detected in: " + pkg.name)
   if pkg.version == "":
-    pkg.version = "v00.00"
-    print("pkg version not detected in" + pkg.name)
+    if pkg.type != "Addon":
+      pkg.version = "v00.00"
+      print("pkg version not detected in: " + pkg.name)
 
 # creating lists
 pkg_Game_list = []
