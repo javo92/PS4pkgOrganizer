@@ -101,9 +101,10 @@ for pkg_game in pkg_Game_list:
   new_game_dir = pkg_game.name + " [" + pkg_game.region + "]" + " [" + pkg_game.psid + "]"
   print(os.path.join(pkg_game.filepath, pkg_game.filename) + " -> " + new_game_dir)
   if dry_run == 0:
-    if not(os.path.exists(new_game_dir)):
-      os.mkdir(new_game_dir)
-      shutil.move(os.path.join(pkg_game.filepath, pkg_game.filename), new_game_dir)
+    if new_game_dir != pkg_game.filepath:
+      if not(os.path.exists(new_game_dir)):
+        os.mkdir(new_game_dir)
+        shutil.move(os.path.join(pkg_game.filepath, pkg_game.filename), new_game_dir)
   # Check the Patches
   checkListContent(pkg_Patch_list)
   # Check the Addons
