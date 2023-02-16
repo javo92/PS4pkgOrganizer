@@ -1,4 +1,4 @@
-# coding=utf-8
+# -*- coding: utf-8 -*-
 #!/usr/bin/python3
 
 import os
@@ -70,7 +70,7 @@ def mapParams (game_name):
     game_name = game_name[param_end+2 : len(game_name)]
     if param.find("CUSA") != -1:
       pkg.psid = param
-    elif param == "EU" or param == "HONG KONG" or param == "JAP" or param == "US":
+    elif param == "EU" or param == "HONG KONG" or param == "JAPAN" or param == "US":
       pkg.region = param
     elif param == "Game" or param == "Patch" or param == "Addon":
       pkg.type = param
@@ -141,7 +141,7 @@ for pkg_game in pkg_Game_list:
     if dry_run == False:
       if not(os.path.exists(full_game_dir)):
         os.mkdir(full_game_dir)
-        shutil.move(os.path.join(pkg_game.filepath, pkg_game.filename), full_game_dir)
+      shutil.move(os.path.join(pkg_game.filepath, pkg_game.filename), full_game_dir)
   else:
     OpStatus = (" (File not moved)")
   printv(os.path.join(pkg_game.filepath, pkg_game.filename) + " -> \n" + full_game_dir + OpStatus, verbose)
@@ -165,3 +165,19 @@ if len(pkg_Patch_list) > 0 or len(pkg_Addon_list) > 0:
   checkListContent(pkg_Patch_list, '', True, os.path.join(root, "Orphans"))
   checkListContent(pkg_Addon_list, '', True, os.path.join(root, "Orphans"))
 
+# List and remove empty directories
+emptyDirList = []
+printed = False
+for path, subdirs, files in os.walk(root):
+    for name in subdirs:
+        if len(os.listdir(os.path.join(path, name))) == 0:
+            if printed == False:
+                printed = True
+                print('Listing empty directories:')
+            emptyDirList.append(os.path.join(path, name))
+            print('  ' + os.path.join(path, name))
+if len(emptyDirList) > 0:
+    deleteDirs = input('Write yes to delete empty directories: ')
+    if deleteDirs == 'yes':
+        for emptyDir in emptyDirList:
+            os.rmdir(emptyDir)
