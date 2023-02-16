@@ -84,15 +84,31 @@ def mapParams (game_name):
   
   if pkg.region == "":
     pkg.region = "EU"
-    printv("pkg region not detected in: " + pkg.name)
+    printv("pkg region not detected in: " + os.path.join(pkg.filepath, pkg.name))
   if pkg.type == "":
     pkg.type = "Others"
-    printv("pkg type not detected in: " + pkg.name)
+    printv("pkg type not detected in: " + os.path.join(pkg.filepath, pkg.name))
   if pkg.version == "":
     if pkg.type != "Addon":
       pkg.version = "v00.00"
-      printv("pkg version not detected in: " + pkg.name)
+      printv("pkg version not detected in: " + os.path.join(pkg.filepath, pkg.name))
 
+def checkListContent(elementlist, psid, force, path):
+  subtree = ''
+  if force != True:
+    subtree = ' ├─ '
+
+  for element in elementlist:
+    if psid == element.psid or force == True:
+      OpStatus = ""
+      if path != element.filepath:
+        if dry_run == False:
+          shutil.move(os.path.join(element.filepath, element.filename), path)
+      else:
+        OpStatus = (" (File not moved)")
+      # Remove the element from the list to prevent it to be processed again
+      printv(subtree + os.path.join(element.filepath, element.filename) + OpStatus, verbose)
+      elementlist.remove(element)
 # creating lists
 pkg_Game_list = []
 pkg_Patch_list = []
@@ -117,19 +133,6 @@ for path, subdirs, files in os.walk(root):
 
 # Check each Game entry in the game list, create a folder to store using the format "Name [Region] [PSID]
 # and move each other file with the same ID as the game to the same folder
-def checkListContent(elementlist):
-  for element in elementlist:
-    if pkg_game.psid == element.psid:
-      OpStatus = ""
-      if full_game_dir != element.filepath:
-        if dry_run == False:
-          shutil.move(os.path.join(element.filepath, element.filename), new_game_dir)
-      else:
-        OpStatus = (" (File not moved)")
-      # Remove the element from the list to prevent it to be processed again
-      printv(' ├─ ' + os.path.join(element.filepath, element.filename) + OpStatus, verbose)
-      elementlist.remove(element)
-
 for pkg_game in pkg_Game_list:
   new_game_dir = pkg_game.name + " [" + pkg_game.region + "]" + " [" + pkg_game.psid + "]"
   full_game_dir = os.path.join(root, pkg_game.name + " [" + pkg_game.region + "]" + " [" + pkg_game.psid + "]")
@@ -143,9 +146,22 @@ for pkg_game in pkg_Game_list:
     OpStatus = (" (File not moved)")
   printv(os.path.join(pkg_game.filepath, pkg_game.filename) + " -> \n" + full_game_dir + OpStatus, verbose)
   # Check the Patches
-  checkListContent(pkg_Patch_list)
+  checkListContent(pkg_Patch_list, pkg_game.psid, False, full_game_dir)
   # Check the Addons
-  checkListContent(pkg_Addon_list)
-  # Check the other files that might have been procesed and are not Patch nor Addon
-  checkListContent(pkg_Others_list)
+  checkListContent(pkg_Addon_list, pkg_game.psid, False, full_game_dir)
+
+# Check the other files that might have been procesed and are not Patch nor Addon
+# and move them to the folder Others
+if len(pkg_Others_list) > 0:
+  printv('Processing Other pkgs:')
+  if not(os.path.exists(os.path.join(root, "Others"))):
+    os.mkdir(os.path.join(root, "Others"))
+  checkListContent(pkg_Others_list, '', True, os.path.join(root, "Others"))
+if len(pkg_Patch_list) > 0 or len(pkg_Addon_list) > 0:
+  printv('Processing Orphan pkgs:')
+  # Move orphan Patches and Addons to the folder Orphans
+  if not(os.path.exists(os.path.join(root, "Orphans"))):
+    os.mkdir(os.path.join(root, "Orphans"))
+  checkListContent(pkg_Patch_list, '', True, os.path.join(root, "Orphans"))
+  checkListContent(pkg_Addon_list, '', True, os.path.join(root, "Orphans"))
 
