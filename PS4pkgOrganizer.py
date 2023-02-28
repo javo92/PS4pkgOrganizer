@@ -137,13 +137,16 @@ for pkg_game in pkg_Game_list:
   new_game_dir = pkg_game.name + " [" + pkg_game.region + "]" + " [" + pkg_game.psid + "]"
   full_game_dir = os.path.join(root, pkg_game.name + " [" + pkg_game.region + "]" + " [" + pkg_game.psid + "]")
   OpStatus = ""
-  if full_game_dir != pkg_game.filepath:
-    if dry_run == False:
-      if not(os.path.exists(full_game_dir)):
-        os.mkdir(full_game_dir)
-      shutil.move(os.path.join(pkg_game.filepath, pkg_game.filename), full_game_dir)
+  if full_game_dir == pkg_game.filepath:
+    OpStatus = (" (File not moved. Already in folder.)")
+  elif os.path.exists(os.path.join(pkg_game.filepath, pkg_game.filename)) == True:
+    OpStatus = (" (WARNING. File not moved. Other file already in folder!)")
+  elif dry_run == False:
+    if not(os.path.exists(full_game_dir)):
+      os.mkdir(full_game_dir)
+    shutil.move(os.path.join(pkg_game.filepath, pkg_game.filename), full_game_dir)
   else:
-    OpStatus = (" (File not moved)")
+    OpStatus = (" (File not moved. Dry-run enabled.)")
   printv(os.path.join(pkg_game.filepath, pkg_game.filename) + " -> \n" + full_game_dir + OpStatus, verbose)
   # Check the Patches
   checkListContent(pkg_Patch_list, pkg_game.psid, False, full_game_dir)
